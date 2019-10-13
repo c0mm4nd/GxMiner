@@ -1,16 +1,16 @@
 # GxMiner
 
-GxMiner is a highly optimized miner for random-x series algorithm
+GxMiner is a highly optimized miner for random-x series algorithm. Binaries are avaliable in [release page](https://github.com/maoxs2/GxMiner/releases)
 
-GxMiner,高度优化,专精RandomX算法的新型挖矿软件。
+GxMiner,高度优化,专精RandomX算法的新型挖矿软件。[国内下载地址](https://gitee.com/Command/GxMiner/releases)
 
 ## Intro
 
-GxMiner acts as a subproejct of project go-randomx which based on C and golang. In this framework, we can mine all cryptocurrencies with random-x series algorithm.
+GxMiner acts as an application of library [go-randomx](https://github.com/maoxs2/go-randomx) which based on C and golang. In this framework, we can mine all cryptocurrencies with random-x series algorithm.
 
 This repo is currently not fully open-sourcing, but its core part, the project go-randomx is open-sourcing, if you wanna help boost GxMiner's speed you can directly post PR to the go-randomx
 
-We plan to open-source after monero's fork on 30 Nov.
+We plan to **open-source** after monero's fork on 30 Nov.
 
 ## Why GxMiner
 
@@ -32,10 +32,10 @@ USAGE:
    gxminer.exe [global options] command [command options] [arguments...]
 
 VERSION:
-   v0.1.1-random-xl-go1.13.1
+   v0.1.2-random-xl-go1.13.1
 
 DESCRIPTION:
-   GxMiner is a highly optimized miner for random-x series algorithm. Make sure you have downloaded from the official page[https://github.com/maoxs2/gxminer]. If you have any problem or advice please take the issue here[https://github.com/maoxs2/open-grin-pool/issues/new]
+   GxMiner is a highly optimized miner for random-x series algorithm. Make sure you have downloaded from the official page[https://github.com/maoxs2/gxminer]. If you have any problem or advice please take the issue here[https://github.com/maoxs2/gxminer/issues/new]
 
 AUTHOR:
    Command M <maoxs2@163.com>
@@ -44,15 +44,15 @@ COMMANDS:
    help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --pool value, -o value                          pool address with port, e.g. 192.168.1.100:3333 or mining.pool:3333
-   --username value, -u value                      wallet address or login username, e.g. L7zjr6vtpyvBtFjgbjcWAu1SYjLRutW518J9Y8LqP4GgYanhRJJSmF37X83YUTJaTr16y8RUtWynAM6DK6Jkx7qVUTMfFie
-   --password value, -p value                      password for login username (default: "x")
-   --rigid value                                   rigID for pool displaying (default: "GxMiner")
+   --pool value, -o value                          Pool address with port, e.g. 192.168.1.100:3333 or mining.pool.com:3333
+   --username value, -u value                      Wallet address or login username
+   --password value, -p value                      Password for login username (default: "x")
+   --rigid value                                   RigID for Pool displaying (default: "GxMiner")
    --workerNum value, --threadNum value, -t value  the number of hash worker (default: 0)
    --hard-aes                                      on default enabled the hardware aes, using soft aes set this to false
    --full-mem                                      on default enabled the full mem, set false to disable
    --jit                                           on default enabled the jit boost, set false to disable
-   --huge-page                                     unavailable, dont enable it on Windows
+   --huge-page                                     on default enabled the huge/large page, set false to disable
    --affinity-mask value                           cpu affinity mask in hex (default: "F")
    --help, -h                                      show help
    --version, -v                                   print the version
@@ -71,11 +71,16 @@ gxminer.exe -o 118.24.119.46:30000 -u L7zjr6vtpyvBtFjgbjcWAu1SYjLRutW518J9Y8LqP4
 
 ## FAQ
 
-- start with "failed to alloc mem for dataset" error
+1. Start the miner with "failed to alloc mem for dataset" error or "failed to alloc mem for cache" error, how to deal?
 
-1. Check your platform support large/huge page or not. if not, set `--huge-page=false`
+- Check your platform support large/huge page or not. if not, set `--huge-page=false`(not recommended).
+- Check whether you have enough page. If not, clear it.
 
-2. Check whether you have enough page. If not, clear it.
+2. How to get maximum hashrate?
+
+- Keep `--hard-aes`, `--full-mem`, `--jit` and `--huge-page` all be true (enabled) as default. 
+- In system setting, set your virtual memory larger than 4GB
+- test the `--workerNum` and select the one with fastest hashrate
 
 ## Hashrate Comparition
 
