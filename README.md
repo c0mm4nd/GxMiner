@@ -24,7 +24,8 @@ And if you are a developer, it would be much **easier to intergrate** your rando
 
 Take RandomXL(Loki) for example:
 
-```bash
+```cmd
+> gxminer.exe help
 NAME:
    GxMiner - Go randomX Miner
 
@@ -32,7 +33,7 @@ USAGE:
    gxminer.exe [global options] command [command options] [arguments...]
 
 VERSION:
-   v0.1.2-random-xl-go1.13.1
+   v0.1.4--go1.13.1
 
 DESCRIPTION:
    GxMiner is a highly optimized miner for random-x series algorithm. Make sure you have downloaded from the official page[https://github.com/maoxs2/gxminer]. If you have any problem or advice please take the issue here[https://github.com/maoxs2/gxminer/issues/new]
@@ -44,16 +45,18 @@ COMMANDS:
    help, h  Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
+   --conf FILE                                     Load configuration from FILE [config.json]
    --pool value, -o value                          Pool address with port, e.g. 192.168.1.100:3333 or mining.pool.com:3333
-   --username value, -u value                      Wallet address or login username
-   --password value, -p value                      Password for login username (default: "x")
-   --rigid value                                   RigID for Pool displaying (default: "GxMiner")
+   --user value, -u value                          Wallet address or login username
+   --pass value, --password value, -p value        Password for login username (default: "x")
+   --rig-id value                                  RigID for Pool displaying (default: "GxMiner")
    --workerNum value, --threadNum value, -t value  the number of hash worker (default: 0)
    --hard-aes                                      on default enabled the hardware aes, using soft aes set this to false
    --full-mem                                      on default enabled the full mem, set false to disable
    --jit                                           on default enabled the jit boost, set false to disable
    --huge-page                                     on default enabled the huge/large page, set false to disable
-   --affinity-mask value                           cpu affinity mask in hex (default: "F")
+   --affinity-mask value                           cpu affinity mask in hex (default: "ff")
+   --tls                                           enable tls encryption in tcp transfer
    --help, -h                                      show help
    --version, -v                                   print the version
 
@@ -79,8 +82,13 @@ gxminer.exe -o 118.24.119.46:30000 -u L7zjr6vtpyvBtFjgbjcWAu1SYjLRutW518J9Y8LqP4
 2. How to get maximum hashrate?
 
 - Keep `--hard-aes`, `--full-mem`, `--jit` and `--huge-page` all be true (enabled) as default. 
-- In system setting, set your virtual memory larger than 4GB
-- test the `--workerNum` and select the one with fastest hashrate
+- In system setting, set your virtual memory larger than 4GB.
+- Test the `--workerNum` and select the one with fastest hashrate.
+
+3. Why always "invalid job id"?
+
+- Check the network delay and packet loss between miner and pool. 
+- Choose a pool with great network status is important.
 
 ## Hashrate Comparition
 
