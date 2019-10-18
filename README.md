@@ -33,7 +33,7 @@ USAGE:
    gxminer.exe [global options] command [command options] [arguments...]
 
 VERSION:
-   v0.1.4--go1.13.1
+   v0.1.4-random-xl-go1.13.1
 
 DESCRIPTION:
    GxMiner is a highly optimized miner for random-x series algorithm. Make sure you have downloaded from the official page[https://github.com/maoxs2/gxminer]. If you have any problem or advice please take the issue here[https://github.com/maoxs2/gxminer/issues/new]
@@ -55,6 +55,8 @@ GLOBAL OPTIONS:
    --full-mem                                      on default enabled the full mem, set false to disable
    --jit                                           on default enabled the jit boost, set false to disable
    --huge-page                                     on default enabled the huge/large page, set false to disable
+   --argon2-sse3                                   enable argon2-sse3
+   --argon2-avx2                                   enable argon2-avx2
    --affinity-mask value                           cpu affinity mask in hex (default: "ff")
    --tls                                           enable tls encryption in tcp transfer
    --help, -h                                      show help
