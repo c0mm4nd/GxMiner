@@ -33,7 +33,7 @@ USAGE:
    gxminer.exe [global options] command [command options] [arguments...]
 
 VERSION:
-   v0.1.5-random-xl-go1.13.1
+   v0.1.6-random-xl-go1.13.1
 
 DESCRIPTION:
    GxMiner is a highly optimized miner for random-x series algorithm. Make sure you have downloaded from the official page[https://github.com/maoxs2/gxminer]. If you have any problem or advice please take the issue here[https://github.com/maoxs2/gxminer/issues/new]
@@ -69,6 +69,42 @@ Loki mining example:
 ```bash
 gxminer.exe -o 118.24.119.46:30000 -u L7zjr6vtpyvBtFjgbjcWAu1SYjLRutW518J9Y8LqP4GgYanhRJJSmF37X83YUTJaTr16y8RUtWynAM6DK6Jkx7qVUTMfFie
 ```
+## Config
+
+Config example (Loki):
+
+```
+{
+  "pools": [
+	{
+      "pool": "proxy.randomx.m00n.top:23333",
+      "user": "L7zjr6vtpyvBtFjgbjcWAu1SYjLRutW518J9Y8LqP4GgYanhRJJSmF37X83YUTJaTr16y8RUtWynAM6DK6Jkx7qVUTMfFie",
+      "pass": "x",
+      "rig-id": "",
+      "tls": false
+    },
+    {
+      "pool": "loki.pool.mine2gether.com:3331",
+      "user": "L7zjr6vtpyvBtFjgbjcWAu1SYjLRutW518J9Y8LqP4GgYanhRJJSmF37X83YUTJaTr16y8RUtWynAM6DK6Jkx7qVUTMfFie",
+      "pass": "x",
+      "rig-id": "",
+      "tls": false
+    }
+  ],
+  "workers": {
+    "worker-num": 8,
+    "huge-page": true,
+    "hard-aes": true,
+    "full-mem": true,
+    "jit": true,
+    "argon2-sse3": true,
+    "argon2-avx2": true,
+    "affinity-mask": "ff"
+  }
+}
+```
+
+The second pool acts as the failover pool config.
 
 ## Build
 
