@@ -116,6 +116,7 @@ The second pool acts as the failover pool config.
 
 - Check your platform support large/huge page or not. if not, set `--huge-page=false`(not recommended).
 - Check whether you have enough page. If not, clear it.
+- https://github.com/tevador/RandomX/issues/100#issuecomment-510484859
 
 2. How to get maximum hashrate?
 
