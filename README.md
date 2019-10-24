@@ -33,7 +33,7 @@ USAGE:
    gxminer.exe [global options] command [command options] [arguments...]
 
 VERSION:
-   v0.1.7-random-xl-go1.13.1
+   v0.1.8-random-xl-go1.13.1
 
 DESCRIPTION:
    GxMiner is a highly optimized miner for random-x series algorithm. Make sure you have downloaded from the official page[https://github.com/maoxs2/gxminer]. If you have any problem or advice please take the issue here[https://github.com/maoxs2/gxminer/issues/new]
@@ -46,6 +46,8 @@ COMMANDS:
 
 GLOBAL OPTIONS:
    --conf FILE                                     Load configuration from FILE [config.json]
+   --log-file FILE                                 save log messages to FILE
+   --log-level value                               log level (debug, info, warn, error, panic) (default: "info")
    --pool value, -o value                          Pool address with port, e.g. 192.168.1.100:3333 or mining.pool.com:3333
    --user value, -u value                          Wallet address or login username
    --pass value, --password value, -p value        Password for login username (default: "x")
@@ -57,7 +59,7 @@ GLOBAL OPTIONS:
    --huge-page                                     on default enabled the huge/large page, set false to disable
    --argon2-sse3                                   enable argon2-sse3
    --argon2-avx2                                   enable argon2-avx2
-   --affinity-mask value                           cpu affinity mask in hex (default: "ff")
+   --affinity-mask value                           cpu affinity mask in hex (default: "f")
    --tls                                           enable tls encryption in tcp transfer
    --help, -h                                      show help
    --version, -v                                   print the version
@@ -100,6 +102,10 @@ Config example (Loki):
     "argon2-sse3": true,
     "argon2-avx2": true,
     "affinity-mask": "ff"
+  },
+  "log": {
+    "level": "info",
+    "file": ""
   }
 }
 ```
