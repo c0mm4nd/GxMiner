@@ -33,7 +33,7 @@ USAGE:
    gxminer.exe [global options] command [command options] [arguments...]
 
 VERSION:
-   v0.1.10-random-xl-go1.13.1
+   v0.1.11-random-xl-go1.13.4
 
 DESCRIPTION:
    GxMiner is a highly optimized miner for random-x series algorithm. Make sure you have downloaded from the official page[https://github.com/maoxs2/gxminer]. If you have any problem or advice please take the issue here[https://github.com/maoxs2/gxminer/issues/new]
@@ -120,7 +120,8 @@ The second pool acts as the failover pool config.
 
 1. Start the miner with "failed to alloc mem for dataset" error or "failed to alloc mem for cache" error, how to deal?
 
-- Check your platform support large/huge page or not. if not, set `--huge-page=false`(not recommended).
+- Check your platform support large/huge page or not. if not, set `--huge-page=false`(not recommended). 
+- `sysctl -w vm.nr_hugepages=1250` on linux(change 1250 to 2500 if you have 2 NUMA).
 - Check whether you have enough page. If not, clear it.
 - https://github.com/tevador/RandomX/issues/100#issuecomment-510484859
 
