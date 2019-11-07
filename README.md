@@ -30,10 +30,10 @@ NAME:
    GxMiner - Go randomX Miner
 
 USAGE:
-   gxminer.exe [global options] command [command options] [arguments...]
+   gxminer [global options] command [command options] [arguments...]
 
 VERSION:
-   v0.1.11-random-xl-go1.13.4
+   v0.1.12-random-xl-go1.13.4
 
 DESCRIPTION:
    GxMiner is a highly optimized miner for random-x series algorithm. Make sure you have downloaded from the official page[https://github.com/maoxs2/gxminer]. If you have any problem or advice please take the issue here[https://github.com/maoxs2/gxminer/issues/new]
@@ -59,8 +59,10 @@ GLOBAL OPTIONS:
    --huge-page                                     on default enabled the huge/large page, set false to disable
    --argon2-sse3                                   enable argon2-sse3
    --argon2-avx2                                   enable argon2-avx2
-   --affinity-mask value                           cpu affinity mask in hex (default: "f")
+   --affinity-mask value                           cpu affinity mask in hex (default: "fff")
    --tls                                           enable tls encryption in tcp transfer
+   --http-port PORT                                serve port on PORT (default: 2333)
+   --http-external                                 expose port on the external env
    --help, -h                                      show help
    --version, -v                                   print the version
 
@@ -69,7 +71,7 @@ GLOBAL OPTIONS:
 Loki mining example:
 
 ```bash
-gxminer.exe -o 118.24.119.46:30000 -u L7zjr6vtpyvBtFjgbjcWAu1SYjLRutW518J9Y8LqP4GgYanhRJJSmF37X83YUTJaTr16y8RUtWynAM6DK6Jkx7qVUTMfFie
+gxminer.exe -o hk.loki.herominers.com:10111 -u L7zjr6vtpyvBtFjgbjcWAu1SYjLRutW518J9Y8LqP4GgYanhRJJSmF37X83YUTJaTr16y8RUtWynAM6DK6Jkx7qVUTMfFie
 ```
 ## Config
 
@@ -78,34 +80,32 @@ Config example (Loki):
 ```
 {
   "pools": [
-	{
-      "pool": "proxy.randomx.m00n.top:23333",
-      "user": "L7zjr6vtpyvBtFjgbjcWAu1SYjLRutW518J9Y8LqP4GgYanhRJJSmF37X83YUTJaTr16y8RUtWynAM6DK6Jkx7qVUTMfFie",
-      "pass": "x",
-      "rig-id": "",
-      "tls": false
-    },
     {
-      "pool": "loki.pool.mine2gether.com:3331",
-      "user": "L7zjr6vtpyvBtFjgbjcWAu1SYjLRutW518J9Y8LqP4GgYanhRJJSmF37X83YUTJaTr16y8RUtWynAM6DK6Jkx7qVUTMfFie",
+      "pool": "rx.minexmr.com:6666",
+      "user": "47wcnDjCDdjATivqH9GjC92jH9Vng7LCBMMxFmTV1Ybf5227MXhyD2gXynLUa9zrh5aPMAnu5npeQ2tLy8Z4pH7461vk6uo",
       "pass": "x",
       "rig-id": "",
-      "tls": false
+      "tls": true
     }
   ],
   "workers": {
-    "worker-num": 8,
+    "worker-num": 2,
+    "init-num": 2,
     "huge-page": true,
     "hard-aes": true,
     "full-mem": true,
     "jit": true,
     "argon2-sse3": true,
     "argon2-avx2": true,
-    "affinity-mask": "ff"
+    "affinity-mask": "f"
   },
   "log": {
-    "level": "info",
+    "level": "debug",
     "file": ""
+  },
+  "http": {
+    "port": 2333,
+    "external": false
   }
 }
 ```
@@ -123,7 +123,7 @@ The second pool acts as the failover pool config.
 - Check your platform support large/huge page or not. if not, set `--huge-page=false`(not recommended). 
 - `sysctl -w vm.nr_hugepages=1250` on linux(change 1250 to 2500 if you have 2 NUMA).
 - Check whether you have enough page. If not, clear it.
-- https://github.com/tevador/RandomX/issues/100#issuecomment-510484859
+- https://github.com/tevador/RandomX/issues/100#issuecomment-510484859 (auto-TrySetLockPagesPrivilege since v0.1.8)
 
 2. How to get maximum hashrate?
 
