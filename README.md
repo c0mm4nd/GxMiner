@@ -33,7 +33,7 @@ USAGE:
    gxminer [global options] command [command options] [arguments...]
 
 VERSION:
-   v0.1.12-random-xl-go1.13.4
+   v0.1.13-random-xl-go1.13.4
 
 DESCRIPTION:
    GxMiner is a highly optimized miner for random-x series algorithm. Make sure you have downloaded from the official page[https://github.com/maoxs2/gxminer]. If you have any problem or advice please take the issue here[https://github.com/maoxs2/gxminer/issues/new]
