@@ -33,7 +33,7 @@ USAGE:
    gxminer [global options] command [command options] [arguments...]
 
 VERSION:
-   v0.1.13-random-xl-go1.13.4
+   v0.1.14-random-xl-go1.13.4
 
 DESCRIPTION:
    GxMiner is a highly optimized miner for random-x series algorithm. Make sure you have downloaded from the official page[https://github.com/maoxs2/gxminer]. If you have any problem or advice please take the issue here[https://github.com/maoxs2/gxminer/issues/new]
@@ -75,7 +75,11 @@ gxminer.exe -o hk.loki.herominers.com:10111 -u L7zjr6vtpyvBtFjgbjcWAu1SYjLRutW51
 ```
 ## Config
 
-Config example (Loki):
+**Configuration order: ConfigFile > CLI > Setup** 
+
+Config File will be auto-generated after setup follow or running with CLI
+
+example:
 
 ```
 {
@@ -111,6 +115,13 @@ Config example (Loki):
 ```
 
 The second pool acts as the failover pool config.
+
+## HTTP API
+
+- `/`: Nothing byt description for API
+- `/shares`: miner's shares status, e.g. `{"accept":3,"reject":0,"total":3}`
+- `/hashrates`: hashrates for each workers
+- `/hashrates/total`: total hashrate
 
 ## Build
 
