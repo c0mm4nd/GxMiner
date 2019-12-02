@@ -63,7 +63,6 @@ func NewManager(BuildVersion string, conf UserConfig) *Manager {
 		level = fastlog.Linfo
 	}
 
-
 	fastlog.SetFlags(fastlog.Flags() | level)
 
 	if conf.Log.File != "" {

@@ -50,7 +50,7 @@ func (rx *Rx) ReadyInit(seedHash []byte) {
 			rx.logger.Fatal("Clean or create more VirtualMem/PageFile (require > 2.5G per NUMA Node)")
 			if runtime.GOOS == "windows" {
 				rx.logger.Fatal("Under windows, you have to reboot the system to clean the VirtualMem/PageFile.")
-			}else{
+			} else {
 				rx.logger.Fatal("Under linux, you can use `sysctl -w vm.nr_hugepages=1250` to enable the VirtualMem/PageFile.")
 			}
 		}
@@ -78,7 +78,7 @@ func (rx *Rx) ReadyNext(seedHash []byte) {
 			rx.logger.Fatal("Clean or create more VirtualMem/PageFile (require > 2.5G per NUMA Node)")
 			if runtime.GOOS == "windows" {
 				rx.logger.Fatal("Under windows, you have to reboot the system to clean the VirtualMem/PageFile.")
-			}else{
+			} else {
 				rx.logger.Fatal("Under linux, you can use `sysctl -w vm.nr_hugepages=1250` to enable the VirtualMem/PageFile.")
 			}
 		}
@@ -108,7 +108,7 @@ func (rx *Rx) UpdateRxDataset(seedHash []byte) {
 				rx.logger.Fatal("Clean or create more VirtualMem/PageFile (require > 2.5G per NUMA Node)")
 				if runtime.GOOS == "windows" {
 					rx.logger.Fatal("Under windows, you have to reboot the system to clean the VirtualMem/PageFile.")
-				}else{
+				} else {
 					rx.logger.Fatal("Under linux, you can use `sysctl -w vm.nr_hugepages=1250` to enable the VirtualMem/PageFile.")
 				}
 			}
@@ -135,11 +135,7 @@ func (rx *Rx) UpdateRxDataset(seedHash []byte) {
 
 func (rx *Rx) SpawnWorkers(job worker.Job) {
 	for i := uint32(0); i < rx.conf.WorkerNum; i++ {
-		vm, err := randomx.NewRxVM(rx.Dataset, rx.conf.Flags()...)
-		if err != nil {
-			rx.logger.Fatal(err)
-		}
-		w := worker.NewWorker(i, rx.conf, vm, rx.submitCh)
+		w := worker.NewWorker(i, rx.Dataset, rx.conf, rx.submitCh)
 		rx.Workers = append(rx.Workers, w)
 		w.CStart(job)
 	}

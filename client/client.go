@@ -405,7 +405,7 @@ func ParseJob(job map[string]interface{}) worker.Job {
 	if len(strTarget) < 16 {
 		target = uint64(binary.LittleEndian.Uint32(b))
 		target = 0xFFFFFFFFFFFFFFFF / (0xFFFFFFFF / target)
-	}else{
+	} else {
 		target = binary.LittleEndian.Uint64(b)
 	}
 

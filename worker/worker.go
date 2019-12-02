@@ -1,6 +1,7 @@
 package worker
 
 import (
+	"bytes"
 	"encoding/binary"
 	"fmt"
 	"math"
@@ -38,6 +39,8 @@ type Worker struct {
 
 	startTime time.Time
 	maxTimes  uint64
+
+	job Job
 
 	newJobCh  chan Job
 	closeCh   chan struct{}
@@ -91,8 +94,10 @@ func (c *Config) Flags() []randomx.Flag {
 	return flags
 }
 
-func NewWorker(id uint32, conf *Config, rxVM *randomx.RxVM, submitCh chan Job) *Worker {
+func NewWorker(id uint32, ds *randomx.RxDataset, conf *Config, submitCh chan Job) *Worker {
 	var affinity []int
+
+	vm, _ := randomx.NewRxVM(ds, conf.Flags()...)
 
 	mask, err := strconv.ParseUint(conf.AffinityMask, 16, 64)
 	if err != nil || mask > 1<<runtime.NumCPU() {
@@ -112,7 +117,7 @@ func NewWorker(id uint32, conf *Config, rxVM *randomx.RxVM, submitCh chan Job) *
 	w := &Worker{
 		Id:        id,
 		conf:      conf,
-		vm:        rxVM,
+		vm:        vm,
 		startTime: time.Now(),
 
 		newJobCh: make(chan Job),
@@ -123,7 +128,7 @@ func NewWorker(id uint32, conf *Config, rxVM *randomx.RxVM, submitCh chan Job) *
 		affinity: affinity,
 	}
 
-	w.maxTimes = 1 << 9
+	w.maxTimes = 1 << 8
 
 	return w
 }
@@ -137,47 +142,40 @@ func (w *Worker) CStart(initJob Job) {
 			cpuaffinity.SetCPUAffinityMask(w.mask)
 		}
 
-		var job = initJob
-		var blob = job.Blob
-		var n = math.MaxUint32/w.conf.WorkerNum*w.Id
-		//binary.LittleEndian.PutUint32(nonce, n)
-		//copy(blob[39:43], nonce)
-		//top := math.MaxUint32 / w.conf.WorkerNum * (w.Id + 1)
-		//w.vm.CalcHashFirst(job.Blob)
+		job := initJob
+		w.job = initJob
 
-		w.vm.CalcHashFirst(blob)
+		var _n, n uint32
+		n = math.MaxUint32 / w.conf.WorkerNum * w.Id
+
+		var blob = make([]byte, 76)
+		copy(blob, job.Blob)
+
+		binary.LittleEndian.PutUint32(blob[39:43], n)
+		w.vm.CalcHashFirst(job.Blob)
 
 		for {
 			select {
 			case job = <-w.newJobCh:
-				blob = job.Blob
-				n=math.MaxUint32/w.conf.WorkerNum*w.Id
-				w.vm.CalcHashFirst(blob)
+				n = math.MaxUint32 / w.conf.WorkerNum * w.Id
+				copy(blob, job.Blob)
 
 			case <-w.closeCh:
 				return
 
 			default:
-				nonce := make([]byte, 4)
-				binary.LittleEndian.PutUint32(nonce, n)
-				copy(blob[39:43], nonce)
-				
-				//w.vm.CalcHashFirst(blob)
+				_n = n
+				n++
+				binary.LittleEndian.PutUint32(blob[39:43], n)
+
 				result := w.vm.CalcHashNext(blob)
 				if binary.LittleEndian.Uint64(result[24:32]) < job.Target {
-					job.Result = result
-					job.Nonce = nonce
-					w.submitCh <- job
+					_job := job
+					_job.Result = result
+					binary.LittleEndian.PutUint32(_job.Nonce, _n)
+					w.submitCh <- _job
 				}
 
-				//result, count := w.vm.Search(nonce, w.maxTimes, w.conf.WorkerNum, job.Target, job.Blob)
-				//if count < w.maxTimes {
-				//	job.Result = result
-				//	job.Nonce = nonce
-				//	w.submitCh <- job
-				//}
-
-				n++
 				w.hashCount++
 			}
 		}
@@ -191,7 +189,10 @@ func (w *Worker) UpdateVM(rxDataset *randomx.RxDataset) {
 }
 
 func (w *Worker) AssignNewJob(job Job) {
-	w.newJobCh <- job
+	if bytes.Compare(w.job.Blob, job.Blob) != 0 {
+		w.job = job
+		w.newJobCh <- job
+	}
 }
 
 func (w *Worker) Hashrate() float64 {
