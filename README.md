@@ -33,7 +33,7 @@ USAGE:
    gxminer [global options] command [command options] [arguments...]
 
 VERSION:
-   v0.1.15-random-xl-go1.13.4
+   v0.2.1-random-xl-go1.13.4
 
 DESCRIPTION:
    GxMiner is a highly optimized miner for random-x series algorithm. Make sure you have downloaded from the official page[https://github.com/maoxs2/gxminer]. If you have any problem or advice please take the issue here[https://github.com/maoxs2/gxminer/issues/new]
@@ -75,7 +75,7 @@ gxminer.exe -o hk.loki.herominers.com:10111 -u L7zjr6vtpyvBtFjgbjcWAu1SYjLRutW51
 ```
 ## Config
 
-**Configuration order: ConfigFile > CLI > Setup** 
+**Configuration sequence: ConfigFile > CLI > Setup** 
 
 Config File will be auto-generated after setup follow or running with CLI
 
@@ -125,7 +125,48 @@ The second pool acts as the failover pool config.
 
 ## Build
 
-[After open-sourcing]
+### 0x00 get ready building environment
+
+- Windows: msys2(base-devel) & latest golang
+- Ubuntu: build-essential & latest golang
+
+### 0x01 clone the repo **with `--recursive` flag**
+
+```
+git clone --recursive https://github.com/maoxs2/GxMiner
+```
+
+### 0x02 build with bash command
+
+```
+bash build.sh random-x
+```
+
+support:
+- random-x
+- random-xl
+- random-wow
+- random-arq
+- random-yada
+- random-sfx
+
+### 0x04 binary will be generated in the sub-folder 
+
+For example, random-xl gxminer will be built in "random-xl" folder
+
+### 0xFF intergrate your RandomX
+
+After git clone (the step1), edit `go-randomx/build.sh`
+
+```
+if [ ! -d "RandomX" ]; then
+  git clone https://github.com/maoxs2/RandomX RandomX
+fi
+```
+
+Replace `https://github.com/maoxs2/RandomX` with your random-x fork, like `https://github.com/safex/RandomSFX`
+
+Then build with bash command like step2, change the `random-x` to your fork's branch, like `master` or `SFX-v1.1.6` etc
 
 ## FAQ
 
