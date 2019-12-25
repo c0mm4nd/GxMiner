@@ -315,6 +315,9 @@ func (c *Client) handleRecv(message JsonRPC, onLogin func(message JsonRPC)) {
 
 			jobInstance, _ := results["job"].(map[string]interface{})
 			newJob := ParseJob(jobInstance)
+			if rpcID, ok := results["id"].(string); ok {
+				newJob.ID = rpcID
+			}
 
 			id, _ := strconv.Atoi(newJob.JobID)
 			c.logger.Infoln("User:", c.pConfigs[c.currentConfigIndex].User)
@@ -360,6 +363,7 @@ func (c *Client) handleRecv(message JsonRPC, onLogin func(message JsonRPC)) {
 
 		jobInstance, _ := message.Params.(map[string]interface{})
 		newJob := ParseJob(jobInstance)
+
 		c.Job = newJob
 
 		id, _ := strconv.Atoi(newJob.JobID)
