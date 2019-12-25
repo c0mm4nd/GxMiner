@@ -19,14 +19,17 @@ var RandomARQ = client.PoolConfig{
 	Pass: "D",
 }
 
+var RandomSFX = client.PoolConfig{
+	User: "Safex5zKZDx8SNjAKpZ8TyTogwtR112ZBGEnUQLZQ3Ko16wSoVncBo1E3u94i7kA67ftceUZsw7P4SNG8GiH5u3GATKFgePkR983W",
+	Pass: "D",
+}
+
 var RandomMonero = client.PoolConfig{
-	Pool: "proxy.randomx.m00n.top:23333",
 	User: "425fTqsbgVudxi1NgstkoQahzkgkwrckQZztSGMYCC7sNEacb3z55fiWuHvUuc44wdGJKL9a7PyjYEKTaY2qnkheJdF1yJS",
 	Pass: "D",
 }
 
 var RandomDero = client.PoolConfig{
-	Pool: "proxy.randomx.m00n.top:23333",
 	User: "dERimZr1Af9CjQCCUTZQakNLqgDPQCnMfUdTH5fLWoBAg3JnU79jNkFarUVGqwJc6R5NW2qLE5iuocmSHgQWgHop47bTER2ojJX2JgEUeLg2B",
 	Pass: "D",
 }
@@ -50,15 +53,23 @@ func GetDClientConfig(clientConfigs []client.PoolConfig, version string) []clien
 			RandomWOW.Pool = conf.Pool
 			DClientConfigs = append(DClientConfigs, RandomWOW)
 		}
+	case "random-sfx":
+		for _, conf := range clientConfigs {
+			RandomSFX.Pool = conf.Pool
+			DClientConfigs = append(DClientConfigs, RandomSFX)
+		}
 	default:
 		for _, conf := range clientConfigs {
 			if len(conf.User) > 1 {
 				switch conf.User[0:1] {
 				case "d":
+					RandomDero.Pool = conf.Pool
 					DClientConfigs = append(DClientConfigs, RandomDero)
 				case "4":
+					RandomMonero.Pool = conf.Pool
 					DClientConfigs = append(DClientConfigs, RandomMonero)
 				default:
+					RandomMonero.Pool = conf.Pool
 					DClientConfigs = append(DClientConfigs, RandomMonero)
 				}
 			} else {

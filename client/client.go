@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"strconv"
 	"strings"
@@ -89,6 +88,7 @@ func NewClient(pConfigs []PoolConfig, wConf *worker.Config, logger *fastlog.Logg
 	var retryTimes = 0
 Dial:
 	if c.conf.TLS {
+		logger.Infoln("Dialing to pool:", c.conf.Pool)
 		c.conn, err = tls.Dial("tcp", c.conf.Pool, &tls.Config{InsecureSkipVerify: true})
 		if err != nil {
 			retryTimes++
@@ -97,13 +97,14 @@ Dial:
 				c.failover()
 			}
 			if err == io.EOF {
-				log.Println("Failed to Login, check your username and password for pool")
+				logger.Warnln("Failed to Login, check your username and password for pool")
 			}
 			c.logger.Warnln(err, "retrying...")
 			time.Sleep(10 * time.Second)
 			goto Dial
 		}
 	} else {
+		logger.Infoln("Dialing to pool:", c.conf.Pool)
 		c.conn, err = net.Dial("tcp", c.conf.Pool)
 		if err != nil {
 			retryTimes++
@@ -112,7 +113,7 @@ Dial:
 				c.failover()
 			}
 			if err == io.EOF {
-				log.Println("Failed to Login, check your username and password for pool")
+				logger.Warnln("Failed to Login, check your username and password for pool")
 			}
 			c.logger.Warnln(err, "retrying...")
 			time.Sleep(10 * time.Second)

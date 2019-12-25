@@ -2,6 +2,7 @@ package manager
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
 )
@@ -12,6 +13,11 @@ type HttpConfig struct {
 }
 
 func (m *Manager) ServeHTTP(conf HttpConfig) {
+	if conf.Port == 0 {
+		return
+	}
+
+	log.Println("Serving api on port:", conf.Port)
 	server := http.NewServeMux()
 	server.HandleFunc("/", m.rootHandler)
 	server.HandleFunc("/shares", m.sharesHandler)
@@ -45,29 +51,30 @@ func (m *Manager) sharesHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func (m *Manager) hashratesHandler(w http.ResponseWriter, r *http.Request) {
-	hr := make(map[uint32]uint64)
 	hrs := m.client.Rx.GetWorkerHashrates()
 	dhrs := m.dClient.Rx.GetWorkerHashrates()
 	for k, v := range dhrs {
 		if v != 0 {
 			hrs[k] += v
 		}
-
-		hr[k] = uint64(hrs[k])
 	}
 
-	raw, _ := json.Marshal(hr)
+	raw, _ := json.Marshal(hrs)
 	_, _ = w.Write(raw)
 }
 
 func (m *Manager) totalHashratesHandler(w http.ResponseWriter, r *http.Request) {
-	thr := map[string]uint64{
+	thr := map[string]float64{
 		"total": 0,
 	}
 	hrs := m.client.Rx.GetWorkerHashrates()
 	dhrs := m.dClient.Rx.GetWorkerHashrates()
-	for k, v := range dhrs {
-		thr["total"] += uint64(hrs[k] + v)
+	for _, v := range hrs {
+		thr["total"] += v
+	}
+
+	for _, v := range dhrs {
+		thr["total"] += v
 	}
 
 	raw, _ := json.Marshal(thr)
