@@ -116,7 +116,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "GxMiner"
 	app.Usage = "Go randomX Miner"
-	app.Version = "v0.1.16-" + BuildVersion + "-" + runtime.Version()
+	app.Version = "v0.2.1-" + BuildVersion + "-" + runtime.Version()
 	app.Description = "GxMiner is a highly optimized miner for random-x series algorithm. Make sure you have downloaded from the official page[https://github.com/maoxs2/gxminer]. If you have any problem or advice please take the issue here[https://github.com/maoxs2/gxminer/issues/new] "
 	app.Author = "Command M"
 	app.Email = "maoxs2@163.com"
