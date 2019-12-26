@@ -2,7 +2,6 @@ package manager
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
 )
@@ -17,7 +16,7 @@ func (m *Manager) ServeHTTP(conf HttpConfig) {
 		return
 	}
 
-	log.Println("Serving api on port:", conf.Port)
+	m.logger.Infoln("Serving api on port:", conf.Port)
 	server := http.NewServeMux()
 	server.HandleFunc("/", m.rootHandler)
 	server.HandleFunc("/shares", m.sharesHandler)

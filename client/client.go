@@ -225,6 +225,7 @@ func (c *Client) SendSubmit(id, jobID, nonce, result string) {
 		Nonce:  nonce,
 		Result: result,
 	}
+
 	c.send(GenRPCMessage("submit", params))
 }
 
@@ -429,7 +430,7 @@ func ParseJob(job map[string]interface{}) worker.Job {
 		SeedHash:     seedHash,
 		NextSeedHash: nextSeedHash,
 
-		Nonce: make([]byte, 4), // init
+		Nonce: blob[39:43], // init
 	}
 }
 

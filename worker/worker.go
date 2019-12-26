@@ -14,6 +14,10 @@ import (
 	"github.com/maoxs2/gxminer/go-randomx"
 )
 
+var (
+	maxNicehashN = binary.LittleEndian.Uint32([]byte{255, 255, 255, 0})
+)
+
 type Job struct {
 	// common
 	ID    string
@@ -48,10 +52,13 @@ type Worker struct {
 
 	mask     uint64
 	affinity []int
+
+	fixedByte byte
 }
 
 type Config struct {
 	WorkerNum    uint32 `json:"worker-num"`
+	Nicehash     bool   `json:"nicehash"`
 	InitNum      uint32 `json:"init-num"`
 	HugePage     bool   `json:"huge-page"`
 	HardAES      bool   `json:"hard-aes"`
@@ -145,34 +152,51 @@ func (w *Worker) CStart(initJob Job) {
 		job := initJob
 		w.job = initJob
 
-		var _n, n uint32
-		n = math.MaxUint32 / w.conf.WorkerNum * w.Id
+		var lastNonce, n uint32
+		if w.conf.Nicehash {
+			n = maxNicehashN / w.conf.WorkerNum * w.Id
+			w.fixedByte = job.Blob[42]
+		} else {
+			n = math.MaxUint32 / w.conf.WorkerNum * w.Id
+		}
 
 		var blob = make([]byte, 76)
 		copy(blob, job.Blob)
-
 		binary.LittleEndian.PutUint32(blob[39:43], n)
 		w.vm.CalcHashFirst(job.Blob)
+		lastNonce = n
 
 		for {
 			select {
 			case job = <-w.newJobCh:
-				n = math.MaxUint32 / w.conf.WorkerNum * w.Id
+				if w.conf.Nicehash {
+					n = maxNicehashN / w.conf.WorkerNum * w.Id
+					w.fixedByte = job.Blob[42]
+				} else {
+					n = math.MaxUint32 / w.conf.WorkerNum * w.Id
+				}
+
 				copy(blob, job.Blob)
 
 			case <-w.closeCh:
 				return
 
 			default:
-				_n = n
+				lastNonce = n
 				n++
 				binary.LittleEndian.PutUint32(blob[39:43], n)
+				if w.conf.Nicehash {
+					blob[42] = w.fixedByte
+				}
 
 				result := w.vm.CalcHashNext(blob)
 				if binary.LittleEndian.Uint64(result[24:32]) < job.Target {
 					_job := job
 					_job.Result = result
-					binary.LittleEndian.PutUint32(_job.Nonce, _n)
+					binary.LittleEndian.PutUint32(_job.Nonce, lastNonce)
+					if w.conf.Nicehash {
+						_job.Nonce[3] = w.fixedByte
+					}
 					w.submitCh <- _job
 				}
 
