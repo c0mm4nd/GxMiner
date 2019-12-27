@@ -37,6 +37,11 @@ var rigIDFlag = cli.StringFlag{
 	Usage: "RigID for Pool displaying",
 }
 
+var nicehashFlag = cli.BoolFlag{
+	Name:  "nicehash",
+	Usage: "enable rig's nicehash mining on pool/proxy",
+}
+
 var workerNumFlag = cli.UintFlag{
 	Name:  "workerNum, threadNum, t",
 	Usage: "the number of hash worker",
@@ -116,7 +121,7 @@ func main() {
 	app := cli.NewApp()
 	app.Name = "GxMiner"
 	app.Usage = "Go randomX Miner"
-	app.Version = "v0.2.1-" + BuildVersion + "-" + runtime.Version()
+	app.Version = "v0.2.2-" + BuildVersion + "-" + runtime.Version()
 	app.Description = "GxMiner is a highly optimized miner for random-x series algorithm. Make sure you have downloaded from the official page[https://github.com/maoxs2/gxminer]. If you have any problem or advice please take the issue here[https://github.com/maoxs2/gxminer/issues/new] "
 	app.Author = "Command M"
 	app.Email = "maoxs2@163.com"
@@ -124,7 +129,7 @@ func main() {
 	var flags = []cli.Flag{
 		configFileFlag,
 		logFileFlag, logLevelFlag,
-		poolFlag, userFlag, passFlag, rigIDFlag,
+		poolFlag, userFlag, passFlag, rigIDFlag, nicehashFlag,
 		workerNumFlag,
 
 		HardAESFlag, FullMemFlag, JitFlag, HugePageFlag, Argon2SSE3Flag, argon2AVX2Flag,

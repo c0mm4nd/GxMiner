@@ -20,20 +20,22 @@ import (
 )
 
 type JsonRPC struct {
-	JsonRPC string      `json:"jsonrpc"`
-	Id      int         `json:"id"`
-	Method  string      `json:"method,omitempty"`
-	Params  interface{} `json:"params,omitempty"`
-	Error   interface{} `json:"error,omitempty"`
-	Result  interface{} `json:"result,omitempty"`
+	JsonRPC    string      `json:"jsonrpc"`
+	Id         int         `json:"id"`
+	Method     string      `json:"method,omitempty"`
+	Params     interface{} `json:"params,omitempty"`
+	Error      interface{} `json:"error,omitempty"`
+	Result     interface{} `json:"result,omitempty"`
+	Extensions []string    `json:"extensions,omitempty"`
 }
 
 type PoolConfig struct {
-	Pool  string `json:"pool"`
-	User  string `json:"user"`
-	Pass  string `json:"pass"`
-	RigID string `json:"rig-id"`
-	TLS   bool   `json:"tls"`
+	Pool     string `json:"pool"`
+	User     string `json:"user"`
+	Pass     string `json:"pass"`
+	RigID    string `json:"rig-id"`
+	Nicehash bool   `json:"nicehash"`
+	TLS      bool   `json:"tls"`
 }
 
 func GenRPCMessage(method string, params interface{}) JsonRPC {
@@ -333,7 +335,7 @@ func (c *Client) handleRecv(message JsonRPC, onLogin func(message JsonRPC)) {
 			}
 
 			if c.Rx.Workers == nil {
-				c.Rx.SpawnWorkers(newJob)
+				c.Rx.SpawnWorkers(newJob, c.conf.Nicehash)
 			} else {
 				if len(newJob.NextSeedHash) > 0 {
 					c.Rx.ReadyNext(newJob.NextSeedHash)

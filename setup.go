@@ -40,7 +40,11 @@ func initWithSetup() *manager.Manager {
 
 	fmt.Print("Enable TLS? (y/[n]): ")
 	r.Scan()
-	yn := r.Text()
+	tls := r.Text()
+
+	fmt.Print("Enable Nicehash? (y/[n]): ")
+	r.Scan()
+	nh := r.Text()
 
 	var t = 0
 	for _, cache := range cpuid.CacheDescriptors {
@@ -74,7 +78,8 @@ func initWithSetup() *manager.Manager {
 		User:  user,
 		Pass:  pass,
 		RigID: "",
-		TLS:   yn == "y",
+		TLS:   tls == "y",
+		Nicehash: nh == "y",
 	}
 
 	workerConf := worker.Config{

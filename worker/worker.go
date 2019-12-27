@@ -53,12 +53,11 @@ type Worker struct {
 	mask     uint64
 	affinity []int
 
-	fixedByte byte
+	nicehash bool
 }
 
 type Config struct {
 	WorkerNum    uint32 `json:"worker-num"`
-	Nicehash     bool   `json:"nicehash"`
 	InitNum      uint32 `json:"init-num"`
 	HugePage     bool   `json:"huge-page"`
 	HardAES      bool   `json:"hard-aes"`
@@ -101,7 +100,7 @@ func (c *Config) Flags() []randomx.Flag {
 	return flags
 }
 
-func NewWorker(id uint32, ds *randomx.RxDataset, conf *Config, submitCh chan Job) *Worker {
+func NewWorker(id uint32, ds *randomx.RxDataset, conf *Config, submitCh chan Job, nicehash bool) *Worker {
 	var affinity []int
 
 	vm, _ := randomx.NewRxVM(ds, conf.Flags()...)
@@ -133,6 +132,8 @@ func NewWorker(id uint32, ds *randomx.RxDataset, conf *Config, submitCh chan Job
 
 		mask:     mask,
 		affinity: affinity,
+
+		nicehash: nicehash,
 	}
 
 	w.maxTimes = 1 << 8
@@ -153,9 +154,8 @@ func (w *Worker) CStart(initJob Job) {
 		w.job = initJob
 
 		var lastNonce, n uint32
-		if w.conf.Nicehash {
+		if w.nicehash {
 			n = maxNicehashN / w.conf.WorkerNum * w.Id
-			w.fixedByte = job.Blob[42]
 		} else {
 			n = math.MaxUint32 / w.conf.WorkerNum * w.Id
 		}
@@ -169,9 +169,8 @@ func (w *Worker) CStart(initJob Job) {
 		for {
 			select {
 			case job = <-w.newJobCh:
-				if w.conf.Nicehash {
+				if w.nicehash {
 					n = maxNicehashN / w.conf.WorkerNum * w.Id
-					w.fixedByte = job.Blob[42]
 				} else {
 					n = math.MaxUint32 / w.conf.WorkerNum * w.Id
 				}
@@ -184,19 +183,26 @@ func (w *Worker) CStart(initJob Job) {
 			default:
 				lastNonce = n
 				n++
-				binary.LittleEndian.PutUint32(blob[39:43], n)
-				if w.conf.Nicehash {
-					blob[42] = w.fixedByte
+				//binary.LittleEndian.PutUint32(blob[39:43], n)
+				blob[39] = byte(n)
+				blob[40] = byte(n >> 8)
+				blob[41] = byte(n >> 16)
+				if !w.nicehash {
+					blob[42] = byte(n >> 24)
 				}
 
 				result := w.vm.CalcHashNext(blob)
 				if binary.LittleEndian.Uint64(result[24:32]) < job.Target {
 					_job := job
 					_job.Result = result
-					binary.LittleEndian.PutUint32(_job.Nonce, lastNonce)
-					if w.conf.Nicehash {
-						_job.Nonce[3] = w.fixedByte
+					//binary.LittleEndian.PutUint32(_job.Nonce, lastNonce)
+					_job.Nonce[0] = byte(lastNonce)
+					_job.Nonce[1] = byte(lastNonce >> 8)
+					_job.Nonce[2] = byte(lastNonce >> 16)
+					if !w.nicehash {
+						_job.Nonce[3] = byte(lastNonce >> 24)
 					}
+
 					w.submitCh <- _job
 				}
 

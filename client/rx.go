@@ -133,9 +133,9 @@ func (rx *Rx) UpdateRxDataset(seedHash []byte) {
 	rx.NextSeedHash = nil
 }
 
-func (rx *Rx) SpawnWorkers(job worker.Job) {
+func (rx *Rx) SpawnWorkers(job worker.Job, nicehash bool) {
 	for i := uint32(0); i < rx.conf.WorkerNum; i++ {
-		w := worker.NewWorker(i, rx.Dataset, rx.conf, rx.submitCh)
+		w := worker.NewWorker(i, rx.Dataset, rx.conf, rx.submitCh, nicehash)
 		rx.Workers = append(rx.Workers, w)
 		w.CStart(job)
 	}

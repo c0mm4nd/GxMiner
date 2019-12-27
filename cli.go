@@ -26,6 +26,7 @@ func initWithFlags(c *cli.Context) *manager.Manager {
 		Pass:  c.String("pass"),
 		RigID: c.String("rig-id"),
 		TLS:   c.Bool("tls"),
+		Nicehash: c.Bool("nicehash"),
 	}
 
 	if c.Uint("t") == 0 {
