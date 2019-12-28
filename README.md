@@ -33,7 +33,7 @@ USAGE:
    gxminer [global options] command [command options] [arguments...]
 
 VERSION:
-   v0.2.1-random-xl-go1.13.4
+   v0.2.2-random-x-go1.13.4
 
 DESCRIPTION:
    GxMiner is a highly optimized miner for random-x series algorithm. Make sure you have downloaded from the official page[https://github.com/maoxs2/gxminer]. If you have any problem or advice please take the issue here[https://github.com/maoxs2/gxminer/issues/new]
@@ -52,6 +52,7 @@ GLOBAL OPTIONS:
    --user value, -u value                          Wallet address or login username
    --pass value, --password value, -p value        Password for login username (default: "x")
    --rig-id value                                  RigID for Pool displaying (default: "GxMiner")
+   --nicehash                                      enable rig's nicehash mining on pool/proxy
    --workerNum value, --threadNum value, -t value  the number of hash worker (default: 0)
    --hard-aes                                      on default enabled the hardware aes, using soft aes set this to false
    --full-mem                                      on default enabled the full mem, set false to disable
@@ -65,6 +66,7 @@ GLOBAL OPTIONS:
    --http-external                                 expose port on the external env
    --help, -h                                      show help
    --version, -v                                   print the version
+
 
 ```
 
@@ -89,7 +91,8 @@ example:
       "user": "47wcnDjCDdjATivqH9GjC92jH9Vng7LCBMMxFmTV1Ybf5227MXhyD2gXynLUa9zrh5aPMAnu5npeQ2tLy8Z4pH7461vk6uo",
       "pass": "x",
       "rig-id": "",
-      "tls": true
+      "tls": true,
+      "nicehash": false
     }
   ],
   "workers": {

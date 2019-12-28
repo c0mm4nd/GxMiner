@@ -14,8 +14,8 @@ import (
 	"github.com/maoxs2/gxminer/go-randomx"
 )
 
-var (
-	maxNicehashN = binary.LittleEndian.Uint32([]byte{255, 255, 255, 0})
+const (
+	maxNicehashN = uint32(255) | uint32(255)<<8 | uint32(255)<<16
 )
 
 type Job struct {
@@ -162,8 +162,13 @@ func (w *Worker) CStart(initJob Job) {
 
 		var blob = make([]byte, 76)
 		copy(blob, job.Blob)
-		binary.LittleEndian.PutUint32(blob[39:43], n)
-		w.vm.CalcHashFirst(job.Blob)
+		blob[39] = byte(n)
+		blob[40] = byte(n >> 8)
+		blob[41] = byte(n >> 16)
+		if !w.nicehash {
+			blob[42] = byte(n >> 24)
+		}
+		w.vm.CalcHashFirst(blob)
 		lastNonce = n
 
 		for {
