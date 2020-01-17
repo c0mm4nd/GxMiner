@@ -38,6 +38,7 @@ type Job struct {
 type Worker struct {
 	Id       uint32
 	conf     *Config
+	topology *hwloc.Topology
 	vm       *randomx.RxVM
 	submitCh chan Job
 
@@ -100,7 +101,7 @@ func (c *Config) Flags() []randomx.Flag {
 	return flags
 }
 
-func NewWorker(id uint32, ds *randomx.RxDataset, conf *Config, submitCh chan Job, nicehash bool) *Worker {
+func NewWorker(id uint32, ds *randomx.RxDataset, conf *Config, submitCh chan Job, nicehash bool, topology *hwloc.Topology) *Worker {
 	var affinity []int
 
 	vm, _ := randomx.NewRxVM(ds, conf.Flags()...)
@@ -123,6 +124,7 @@ func NewWorker(id uint32, ds *randomx.RxDataset, conf *Config, submitCh chan Job
 	w := &Worker{
 		Id:        id,
 		conf:      conf,
+		topology:  topology,
 		vm:        vm,
 		startTime: time.Now(),
 
@@ -145,7 +147,8 @@ func (w *Worker) CStart(initJob Job) {
 	go func() {
 		if w.Id < uint32(len(w.affinity)) {
 			cpuaffinity.SetCPUAffinity(w.affinity[w.Id])
-			hwloc.BindToNUMANode(int64(w.affinity[w.Id]))
+			nodeSet := w.topology.HwlocGetNUMANodeObjByOSIndex(uint32(w.affinity[w.Id]))
+			w.topology.HwlocSetMemBind(nodeSet, hwloc.HwlocMemBindBind, hwloc.HwlocMemBindThread|hwloc.HwlocMemBindByNodeSet)
 		} else {
 			cpuaffinity.SetCPUAffinityMask(w.mask)
 		}

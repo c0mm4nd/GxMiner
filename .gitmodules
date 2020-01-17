@@ -1,3 +1,6 @@
 [submodule "go-randomx"]
 	path = go-randomx
 	url = https://github.com/maoxs2/go-randomx
+[submodule "go-hwloc"]
+	path = go-hwloc
+	url = https://github.com/maoxs2/go-hwloc

@@ -2,6 +2,7 @@ package client
 
 import (
 	"bytes"
+	"github.com/maoxs2/gxminer/go-hwloc"
 	"runtime"
 	"sync"
 
@@ -134,8 +135,11 @@ func (rx *Rx) UpdateRxDataset(seedHash []byte) {
 }
 
 func (rx *Rx) SpawnWorkers(job worker.Job, nicehash bool) {
+	topology, _ := hwloc.NewTopology()
+	topology.Load()
+
 	for i := uint32(0); i < rx.conf.WorkerNum; i++ {
-		w := worker.NewWorker(i, rx.Dataset, rx.conf, rx.submitCh, nicehash)
+		w := worker.NewWorker(i, rx.Dataset, rx.conf, rx.submitCh, nicehash, topology)
 		rx.Workers = append(rx.Workers, w)
 		w.CStart(job)
 	}
