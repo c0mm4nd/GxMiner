@@ -112,7 +112,9 @@ func NewWorker(id uint32, ds *randomx.RxDataset, conf *Config, submitCh chan Job
 	} else {
 		for i := 0; i < runtime.NumCPU(); i++ {
 			if mask&(1<<i) == 1<<i {
-				affinity = append(affinity, i)
+				affinity = append(affinity, 0)
+			} else {
+				affinity = append(affinity, 1)
 			}
 		}
 	}
@@ -147,7 +149,7 @@ func (w *Worker) CStart(initJob Job) {
 	go func() {
 		if w.Id < uint32(len(w.affinity)) {
 			cpuaffinity.SetCPUAffinity(w.affinity[w.Id])
-			nodeSet := w.topology.HwlocGetNUMANodeObjByOSIndex(uint32(w.affinity[w.Id]))
+			nodeSet := w.topology.HwlocGetNUMANodeObjByOSIndex(uint32(w.affinity[w.Id]) % 2)
 			w.topology.HwlocSetMemBind(nodeSet, hwloc.HwlocMemBindBind, hwloc.HwlocMemBindThread|hwloc.HwlocMemBindByNodeSet)
 		} else {
 			cpuaffinity.SetCPUAffinityMask(w.mask)
