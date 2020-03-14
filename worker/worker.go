@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"fmt"
+	"github.com/jaypipes/ghw"
 	"math"
 	"runtime"
 	"strconv"
@@ -51,8 +52,9 @@ type Worker struct {
 	closeCh   chan struct{}
 	hashCount uint64
 
-	mask     uint64
-	affinity []int
+	mask         uint64
+	numaAffinity []int
+	cpuAffinity  []int
 
 	nicehash bool
 }
@@ -102,25 +104,32 @@ func (c *Config) Flags() []randomx.Flag {
 }
 
 func NewWorker(id uint32, ds *randomx.RxDataset, conf *Config, submitCh chan Job, nicehash bool, topology *hwloc.Topology) *Worker {
-	var affinity []int
+	var numaAffinity []int
+	var cpuAffinity []int
 
 	vm, _ := randomx.NewRxVM(ds, conf.Flags()...)
 
 	mask, err := strconv.ParseUint(conf.AffinityMask, 16, 64)
 	if err != nil || mask > 1<<runtime.NumCPU() {
-		fmt.Println("invalid affinity", err)
+		fmt.Println("invalid mask", err)
 	} else {
 		for i := 0; i < runtime.NumCPU(); i++ {
 			if mask&(1<<i) == 1<<i {
-				affinity = append(affinity, 0)
-			} else {
-				affinity = append(affinity, 1)
+				cpuAffinity = append(cpuAffinity, i)
+			}
+		}
+
+		if topo, err := ghw.Topology(); err == nil && topo.Architecture == ghw.ARCHITECTURE_NUMA {
+			for i := 0; i < len(topo.Nodes); i++ {
+				if mask&(1<<i) == 1<<i {
+					numaAffinity = append(numaAffinity, i)
+				}
 			}
 		}
 	}
 
-	if conf.WorkerNum < uint32(len(affinity)) {
-		affinity = nil
+	if conf.WorkerNum < uint32(len(numaAffinity)) {
+		cpuAffinity = nil
 	}
 
 	w := &Worker{
@@ -134,8 +143,9 @@ func NewWorker(id uint32, ds *randomx.RxDataset, conf *Config, submitCh chan Job
 		closeCh:  make(chan struct{}),
 		submitCh: submitCh,
 
-		mask:     mask,
-		affinity: affinity,
+		mask:         mask,
+		cpuAffinity:  cpuAffinity,
+		numaAffinity: numaAffinity,
 
 		nicehash: nicehash,
 	}
@@ -147,9 +157,9 @@ func NewWorker(id uint32, ds *randomx.RxDataset, conf *Config, submitCh chan Job
 
 func (w *Worker) CStart(initJob Job) {
 	go func() {
-		if w.Id < uint32(len(w.affinity)) {
-			cpuaffinity.SetCPUAffinity(w.affinity[w.Id])
-			nodeSet := w.topology.HwlocGetNUMANodeObjByOSIndex(uint32(w.affinity[w.Id]) % 2)
+		if w.Id < uint32(len(w.numaAffinity)) {
+			cpuaffinity.SetCPUAffinity(w.cpuAffinity[w.Id])
+			nodeSet := w.topology.HwlocGetNUMANodeObjByOSIndex(uint32(w.numaAffinity[w.Id]) % 2)
 			w.topology.HwlocSetMemBind(nodeSet, hwloc.HwlocMemBindBind, hwloc.HwlocMemBindThread|hwloc.HwlocMemBindByNodeSet)
 		} else {
 			cpuaffinity.SetCPUAffinityMask(w.mask)

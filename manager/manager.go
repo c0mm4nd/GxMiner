@@ -18,10 +18,10 @@ import (
 )
 
 type UserConfig struct {
-	Pools   []client.PoolConfig
-	Workers worker.Config
-	Log     logger.LogConfig
-	Http    HttpConfig
+	Pools   []client.PoolConfig `json:"pools"`
+	Workers worker.Config       `json:"workers"`
+	Log     logger.LogConfig    `json:"log"`
+	Http    HttpConfig          `json:"http"`
 	//Master  manager.MasterConfig
 	//Slave   manager.SlaveConfig
 }
