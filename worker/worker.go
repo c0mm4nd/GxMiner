@@ -52,9 +52,9 @@ type Worker struct {
 	closeCh   chan struct{}
 	hashCount uint64
 
-	mask         uint64
-	numaAffinity []int
-	cpuAffinity  []int
+	mask        uint64
+	cpuAffinity []int
+	numa        int
 
 	nicehash bool
 }
@@ -104,9 +104,8 @@ func (c *Config) Flags() []randomx.Flag {
 }
 
 func NewWorker(id uint32, ds *randomx.RxDataset, conf *Config, submitCh chan Job, nicehash bool, topology *hwloc.Topology) *Worker {
-	var numaAffinity []int
-	var cpuAffinity []int
-
+	var cpuAffinity = make([]int, 0, runtime.NumCPU()) // may be less than core num so cannot allocate
+	var numa = 0
 	vm, _ := randomx.NewRxVM(ds, conf.Flags()...)
 
 	mask, err := strconv.ParseUint(conf.AffinityMask, 16, 64)
@@ -118,18 +117,14 @@ func NewWorker(id uint32, ds *randomx.RxDataset, conf *Config, submitCh chan Job
 				cpuAffinity = append(cpuAffinity, i)
 			}
 		}
-
-		if topo, err := ghw.Topology(); err == nil && topo.Architecture == ghw.ARCHITECTURE_NUMA {
-			for i := 0; i < len(topo.Nodes); i++ {
-				if mask&(1<<i) == 1<<i {
-					numaAffinity = append(numaAffinity, i)
-				}
-			}
-		}
 	}
 
-	if conf.WorkerNum < uint32(len(numaAffinity)) {
-		cpuAffinity = nil
+	if topo, err := ghw.Topology(); err == nil && topo.Architecture == ghw.ARCHITECTURE_NUMA {
+		numa = len(topo.Nodes)
+	}
+
+	if conf.WorkerNum < uint32(len(cpuAffinity)) {
+		cpuAffinity = nil // threads(works) are not corresponding to the cpu affinity, miner should cancel the affinity and make golang optimize automatically
 	}
 
 	w := &Worker{
@@ -143,9 +138,9 @@ func NewWorker(id uint32, ds *randomx.RxDataset, conf *Config, submitCh chan Job
 		closeCh:  make(chan struct{}),
 		submitCh: submitCh,
 
-		mask:         mask,
-		cpuAffinity:  cpuAffinity,
-		numaAffinity: numaAffinity,
+		numa:        numa,
+		mask:        mask,
+		cpuAffinity: cpuAffinity,
 
 		nicehash: nicehash,
 	}
@@ -157,12 +152,15 @@ func NewWorker(id uint32, ds *randomx.RxDataset, conf *Config, submitCh chan Job
 
 func (w *Worker) CStart(initJob Job) {
 	go func() {
-		if w.Id < uint32(len(w.numaAffinity)) {
-			cpuaffinity.SetCPUAffinity(w.cpuAffinity[w.Id])
-			nodeSet := w.topology.HwlocGetNUMANodeObjByOSIndex(uint32(w.numaAffinity[w.Id]) % 2)
-			w.topology.HwlocSetMemBind(nodeSet, hwloc.HwlocMemBindBind, hwloc.HwlocMemBindThread|hwloc.HwlocMemBindByNodeSet)
+		if w.Id < uint32(len(w.cpuAffinity)) {
+			cpuaffinity.SetCPUAffinity(w.cpuAffinity[w.Id]) // to one
 		} else {
-			cpuaffinity.SetCPUAffinityMask(w.mask)
+			cpuaffinity.SetCPUAffinityMask(w.mask) // to all cores in mask
+		}
+
+		if w.numa > 0 {
+			nodeSet := w.topology.HwlocGetNUMANodeObjByOSIndex(w.Id % uint32(w.numa))
+			w.topology.HwlocSetMemBind(nodeSet, hwloc.HwlocMemBindBind, hwloc.HwlocMemBindThread|hwloc.HwlocMemBindByNodeSet)
 		}
 
 		job := initJob
